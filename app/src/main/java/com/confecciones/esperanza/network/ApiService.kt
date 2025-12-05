@@ -69,4 +69,39 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("id") id: Int
     ): Response<ClienteOperationResponse>
+
+    // Endpoints de Materiales
+    @GET("Material")
+    suspend fun getMateriales(@Header("Authorization") token: String): Response<MaterialesResponse>
+
+    @GET("Material/{id}")
+    suspend fun getMaterial(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<Material>
+
+    @POST("Material")
+    suspend fun createMaterial(
+        @Header("Authorization") token: String,
+        @Body request: CreateMaterialRequest
+    ): Response<MaterialOperationResponse>
+
+    @PUT("Material/{id}")
+    suspend fun updateMaterial(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Body request: CreateMaterialRequest
+    ): Response<MaterialOperationResponse>
+
+    @DELETE("Material/{id}")
+    suspend fun deleteMaterial(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<MaterialOperationResponse>
+
+    @GET("Material/tipos")
+    suspend fun getTiposMaterial(@Header("Authorization") token: String): Response<List<TipoMaterial>>
+
+    @GET("Color")
+    suspend fun getColores(@Header("Authorization") token: String): Response<List<Color>>
 }
