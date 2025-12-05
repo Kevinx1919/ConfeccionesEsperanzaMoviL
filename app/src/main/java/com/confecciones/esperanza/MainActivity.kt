@@ -73,6 +73,12 @@ fun MainApp() {
                 onNavigateToClientes = {
                     navController.navigate("clientes")
                 },
+                onNavigateToStockDetail = { materialId ->
+                    navController.navigate("material_detail/$materialId")
+                },
+                onNavigateToStockCreate = {
+                    navController.navigate("stock_create")
+                },
                 mainViewModel = mainViewModel
             )
         }
@@ -155,6 +161,40 @@ fun MainApp() {
                 onNavigateBack = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable("stock_create") {
+            CreateMaterialScreen(
+                token = token ?: "",
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = "material_detail/{materialId}",
+            arguments = listOf(navArgument("materialId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
+            MaterialDetailScreen(
+                materialId = materialId,
+                token = token ?: "",
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToEdit = { id ->
+                    navController.navigate("material_edit/$id")
+                }
+            )
+        }
+
+        composable(
+            route = "material_edit/{materialId}",
+            arguments = listOf(navArgument("materialId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
+            EditMaterialScreen(
+                materialId = materialId,
+                token = token ?: "",
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

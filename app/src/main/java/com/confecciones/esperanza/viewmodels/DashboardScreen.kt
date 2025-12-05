@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -46,10 +47,12 @@ fun DashboardScreen(
     onLogout: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToClientes: () -> Unit,
+    onNavigateToStockCreate: () -> Unit,
+    onNavigateToStockDetail: (Int) -> Unit,
     mainViewModel: MainViewModel = viewModel(),
     dashboardViewModel: DashboardViewModel = viewModel()
 ) {
-    var selectedTopItem by remember { mutableStateOf(TopMenuItem.INICIO) }
+    var selectedTopItem by remember { mutableStateOf(TopMenuItem.STOCK) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -100,6 +103,16 @@ fun DashboardScreen(
                         scope.launch { drawerState.open() }
                     }
                 )
+            },
+            floatingActionButton = {
+                if (selectedTopItem == TopMenuItem.STOCK) {
+                    FloatingActionButton(
+                        onClick = onNavigateToStockCreate,
+                        containerColor = Color(0xFF7C3AED)
+                    ) {
+                        Icon(Icons.Default.Add, "Agregar Material", tint = Color.White)
+                    }
+                }
             }
         ) { paddingValues ->
             Box(
@@ -111,7 +124,10 @@ fun DashboardScreen(
                 when (selectedTopItem) {
                     TopMenuItem.INICIO -> InicioContent(userName, dashboardViewModel, token)
                     TopMenuItem.PEDIDOS -> PedidosContent()
-                    TopMenuItem.STOCK -> StockContent()
+                    TopMenuItem.STOCK -> StockScreen(
+                        token = token,
+                        onNavigateToDetail = onNavigateToStockDetail
+                    )
                     TopMenuItem.REPORTES -> ReportesContent()
                 }
             }
@@ -478,17 +494,6 @@ fun PedidosContent() {
             Text(text = "📦", fontSize = 64.sp)
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Módulo de Pedidos", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-fun StockContent() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "📊", fontSize = 64.sp)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Módulo de Stock", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
