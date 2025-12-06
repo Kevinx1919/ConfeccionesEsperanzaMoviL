@@ -104,4 +104,12 @@ interface ApiService {
 
     @GET("Color")
     suspend fun getColores(@Header("Authorization") token: String): Response<List<Color>>
+
+    // Endpoints de Tareas
+    @GET("Task")
+    suspend fun getTareas(@Header("Authorization") token: String): Response<TareasResponse>
+
+    // Endpoints de Empleados
+    @GET("User")
+    suspend fun getUsers(@Header("Authorization") token: String): Response<EmployeesResponse>
 }
