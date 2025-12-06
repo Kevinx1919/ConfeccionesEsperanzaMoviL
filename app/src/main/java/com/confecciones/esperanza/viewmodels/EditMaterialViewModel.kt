@@ -76,16 +76,16 @@ class EditMaterialViewModel : ViewModel() {
 
     private fun getDefaultColors(): List<Color> {
         return listOf(
-            Color(id = 1, nombre = "Blanco"),
-            Color(id = 2, nombre = "Negro"),
-            Color(id = 3, nombre = "Azul marino"),
-            Color(id = 4, nombre = "Rojo"),
-            Color(id = 5, nombre = "Verde"),
-            Color(id = 6, nombre = "Amarillo"),
-            Color(id = 7, nombre = "Rosa"),
-            Color(id = 8, nombre = "Gris"),
-            Color(id = 9, nombre = "Beige"),
-            Color(id = 10, nombre = "Morado")
+            Color(id = 4, nombre = "Amarillo"),
+            Color(id = 2, nombre = "Azul"),
+            Color(id = 6, nombre = "Blanco"),
+            Color(id = 7, nombre = "Gris"),
+            Color(id = 9, nombre = "Morado"),
+            Color(id = 10, nombre = "Naranja"),
+            Color(id = 5, nombre = "Negro"),
+            Color(id = 1, nombre = "Rojo"),
+            Color(id = 8, nombre = "Rosa"),
+            Color(id = 3, nombre = "Verde")
         )
     }
 
