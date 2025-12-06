@@ -49,10 +49,12 @@ fun DashboardScreen(
     onNavigateToClientes: () -> Unit,
     onNavigateToStockCreate: () -> Unit,
     onNavigateToStockDetail: (Int) -> Unit,
+    onNavigateToTasks: () -> Unit,
+    onNavigateToEmployees: () -> Unit,
     mainViewModel: MainViewModel = viewModel(),
     dashboardViewModel: DashboardViewModel = viewModel()
 ) {
-    var selectedTopItem by remember { mutableStateOf(TopMenuItem.STOCK) }
+    var selectedTopItem by remember { mutableStateOf(TopMenuItem.INICIO) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -83,6 +85,8 @@ fun DashboardScreen(
                     when (route) {
                         "perfil" -> onNavigateToProfile()
                         "clientes" -> onNavigateToClientes()
+                        "tareas" -> onNavigateToTasks()
+                        "empleados" -> onNavigateToEmployees()
                         // Aquí puedes agregar más rutas cuando las implementes
                     }
                 },

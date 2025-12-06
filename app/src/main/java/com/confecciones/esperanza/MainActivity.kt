@@ -79,6 +79,12 @@ fun MainApp() {
                 onNavigateToStockCreate = {
                     navController.navigate("stock_create")
                 },
+                onNavigateToTasks = {
+                    navController.navigate("tasks")
+                },
+                 onNavigateToEmployees = {
+                    navController.navigate("employees")
+                },
                 mainViewModel = mainViewModel
             )
         }
@@ -195,6 +201,27 @@ fun MainApp() {
                 materialId = materialId,
                 token = token ?: "",
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable("tasks") {
+            TasksScreen(
+                token = token ?: "",
+                onNavigateToDetail = { taskId ->
+                    // TODO: Navigate to task detail
+                },
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToCreate = { /* TODO: Navigate to create task */ }
+            )
+        }
+        composable("employees") {
+            EmployeesScreen(
+                token = token ?: "",
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDetail = { employeeId ->
+                    // TODO: Navigate to employee detail
+                },
+                onNavigateToCreate = { /* TODO: Navigate to create employee */ }
             )
         }
     }
