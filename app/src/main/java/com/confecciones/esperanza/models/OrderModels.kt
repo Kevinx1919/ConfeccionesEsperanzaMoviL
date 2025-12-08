@@ -2,6 +2,11 @@ package com.confecciones.esperanza.models
 
 import com.google.gson.annotations.SerializedName
 
+
+data class OrdersResponse(
+    @SerializedName("pedidos") val pedidos: List<Order>
+)
+
 // CORRECCIÓN DEFINITIVA: Modelo sincronizado con el backend C#
 data class Order(
     @SerializedName("idPedido") val id: Int,
@@ -35,5 +40,17 @@ data class NewOrderDetail(
     val productoId: Int,
     val cantidad: Int,
     val precioUnitario: Double
+)
+
+data class OrderRequest(
+    val clienteId: Int,
+    val fechaEntrega: String,
+    val detalles: List<NewOrderDetail>
+)
+
+data class OrderOperationResponse(
+    val exito: Boolean,
+    val mensaje: String,
+    val idPedido: Int?
 )
 
