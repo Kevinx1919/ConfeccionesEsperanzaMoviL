@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,8 +25,7 @@ import java.util.Locale
 fun OrderListScreen(
     token: String,
     orderViewModel: OrderViewModel = viewModel(),
-    onNavigateToDetail: (Int) -> Unit,
-    onNavigateToCreate: () -> Unit
+    onNavigateToDetail: (Int) -> Unit
 ) {
     LaunchedEffect(token) { if (token.isNotBlank()) orderViewModel.loadOrders(token) }
 
@@ -36,36 +34,28 @@ fun OrderListScreen(
     val isLoading by orderViewModel.isLoading.collectAsState()
     val error by orderViewModel.error.collectAsState()
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToCreate) {
-                Icon(Icons.Filled.Add, contentDescription = "Registrar Pedido")
+    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF0F2F5))) {
+        SearchBar(searchQuery, orderViewModel::onSearchQueryChange)
+        if (isLoading && filteredOrders.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-        }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize().background(Color(0xFFF0F2F5))) {
-            SearchBar(searchQuery, orderViewModel::onSearchQueryChange)
-            if (isLoading && filteredOrders.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (error != null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(error!!, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
-                }
-            } else if (filteredOrders.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(if (searchQuery.isBlank()) "No hay pedidos registrados." else "No se encontraron resultados.")
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredOrders, key = { it.id }) { order ->
-                        OrderItem(order = order, onClick = { onNavigateToDetail(order.id) })
-                    }
+        } else if (error != null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(error!!, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+            }
+        } else if (filteredOrders.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(if (searchQuery.isBlank()) "No hay pedidos registrados." else "No se encontraron resultados.")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filteredOrders, key = { it.id }) { order ->
+                    OrderItem(order = order, onClick = { onNavigateToDetail(order.id) })
                 }
             }
         }
@@ -102,7 +92,7 @@ private fun OrderItem(order: Order, onClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            val customerName = listOfNotNull(order.cliente?.nombreCliente, order.cliente?.apellidoCliente).joinToString(" ").ifBlank { "Cliente N/A" }
+            val customerName = listOfNotNull(order.cliente?.nombreCliente, order.cliente?.apellidoCliente).joinToString(" ").ifEmpty { "Cliente N/A" }
             InfoRow(label = "Cliente:", value = customerName)
             InfoRow(label = "F. Entrega:", value = order.deliveryDate?.take(10) ?: "No especificada")
 

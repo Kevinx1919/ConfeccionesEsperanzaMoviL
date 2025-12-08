@@ -140,8 +140,7 @@ fun DashboardScreen(
                     TopMenuItem.INICIO -> InicioContent(userName, dashboardViewModel, token)
                     TopMenuItem.PEDIDOS -> OrderListScreen(
                         token = token,
-                        onNavigateToDetail = onNavigateToOrderDetail,
-                        onNavigateToCreate = onNavigateToCreateOrder
+                        onNavigateToDetail = onNavigateToOrderDetail
                     )
                     TopMenuItem.STOCK -> StockScreen(
                         token = token,
