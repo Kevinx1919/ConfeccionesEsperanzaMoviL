@@ -75,6 +75,7 @@ fun ClientesScreen(
             SearchBar(
                 query = searchQuery,
                 onQueryChange = { viewModel.setSearchQuery(it) },
+                placeholderText = "Buscar cliente...",
                 modifier = Modifier.padding(16.dp)
             )
 
@@ -143,6 +144,7 @@ fun ClientesScreen(
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
+    placeholderText: String,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -150,7 +152,7 @@ fun SearchBar(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text("Buscar cliente...", color = Color.Gray) },
+        placeholder = { Text(placeholderText, color = Color.Gray) },
         leadingIcon = {
             Icon(Icons.Default.Search, "Buscar", tint = Color(0xFF7C3AED))
         },
