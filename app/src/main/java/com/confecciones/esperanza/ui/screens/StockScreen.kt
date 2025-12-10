@@ -25,7 +25,8 @@ fun StockScreen(
     modifier: Modifier = Modifier,
     viewModel: StockViewModel = viewModel()
 ) {
-    val materiales by viewModel.materiales.collectAsState()
+    val filteredMateriales by viewModel.filteredMateriales.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
@@ -33,35 +34,44 @@ fun StockScreen(
         viewModel.getMateriales(token)
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF7C3AED))
-        } else if (error != null) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("⚠️", fontSize = 64.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(error!!, color = Color.Red, fontSize = 16.sp)
-            }
-        } else if (materiales.isEmpty()) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("📊", fontSize = 64.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("No hay materiales registrados", color = Color.Gray, fontSize = 16.sp)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 80.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(materiales) { material ->
-                    MaterialCard(material = material, onClick = { onNavigateToDetail(material.idMaterial) })
+    Column(modifier = modifier.fillMaxSize()) {
+        SearchBar(
+            query = searchQuery,
+            onQueryChange = viewModel::onSearchQueryChange,
+            placeholderText = "Buscar material...",
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF7C3AED))
+            } else if (error != null) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("⚠️", fontSize = 64.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(error!!, color = Color.Red, fontSize = 16.sp)
+                }
+            } else if (filteredMateriales.isEmpty()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("📊", fontSize = 64.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("No se encontraron materiales", color = Color.Gray, fontSize = 16.sp)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 80.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredMateriales) { material ->
+                        MaterialCard(material = material, onClick = { onNavigateToDetail(material.idMaterial) })
+                    }
                 }
             }
         }
