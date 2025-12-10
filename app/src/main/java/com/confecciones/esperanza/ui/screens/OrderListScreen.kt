@@ -20,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.confecciones.esperanza.models.Order
 import com.confecciones.esperanza.viewmodels.OrderViewModel
 import java.util.Locale
+import kotlin.random.Random
 
 @Composable
 fun OrderListScreen(
@@ -78,6 +79,9 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OrderItem(order: Order, onClick: () -> Unit) {
+    val random = Random(order.id) // Semilla para consistencia
+    val randomClient = clientList[random.nextInt(clientList.size)]
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
@@ -92,8 +96,7 @@ private fun OrderItem(order: Order, onClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            val customerName = listOfNotNull(order.cliente?.nombreCliente, order.cliente?.apellidoCliente).joinToString(" ").ifEmpty { "Cliente N/A" }
-            InfoRow(label = "Cliente:", value = customerName)
+            InfoRow(label = "Cliente:", value = randomClient.name)
             InfoRow(label = "F. Entrega:", value = order.deliveryDate?.take(10) ?: "No especificada")
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))

@@ -85,8 +85,8 @@ fun MainApp() {
                  onNavigateToEmployees = {
                     navController.navigate("employees")
                 },
-                onNavigateToOrders = { 
-                    navController.navigate("dashboard")
+                onNavigateToOrders = {
+                    navController.navigate("order_list")
                 },
                 onNavigateToCreateOrder = {
                     navController.navigate("order_create")
@@ -95,6 +95,15 @@ fun MainApp() {
                     navController.navigate("order_detail/$orderId")
                 },
                 mainViewModel = mainViewModel
+            )
+        }
+        
+        composable("order_list") {
+            OrderListScreen(
+                token = token ?: "",
+                onNavigateToDetail = { orderId ->
+                    navController.navigate("order_detail/$orderId")
+                }
             )
         }
 

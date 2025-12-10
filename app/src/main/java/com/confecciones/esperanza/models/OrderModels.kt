@@ -23,7 +23,7 @@ data class Order(
 )
 
 data class OrderDetail(
-    // Asumiendo nombres de propiedades del backend para DetallePedido
+    @SerializedName("idProducto") val idProducto: Int?,
     @SerializedName("producto") val productName: String?,
     @SerializedName("cantidad") val cantidad: Int?,
     @SerializedName("precioUnitario") val unitPrice: Double?,

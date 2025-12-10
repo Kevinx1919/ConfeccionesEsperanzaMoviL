@@ -23,18 +23,35 @@ import androidx.compose.ui.unit.sp
 
 // --- MODELOS DE DATOS PARA LA UI ---
 data class Product(val id: Int, val name: String, val price: Double)
+data class Client(val name: String)
 
 val productList = listOf(
-    Product(1, "Camiseta Premium Algodón", 25000.0),
-    Product(2, "Pantalón Cargo Ajustado", 80000.0),
-    Product(3, "Chaqueta Denim Clásica", 120000.0),
+    Product(1, "Camiseta Premium Algodon", 25000.0),
+    Product(2, "Pantalon Cargo Ancho", 80000.0),
+    Product(3, "Chaqueta Denim Clasica", 120000.0),
     Product(4, "Vestido Midi Floral", 95000.0),
     Product(5, "Sudadera con Capucha Gris", 70000.0),
-    Product(6, "Zapatillas Deportivas", 150000.0),
+    Product(6, "Zapatillas Deportivas Lite", 150000.0),
     Product(7, "Falda Plisada Negra", 65000.0),
     Product(8, "Bufanda de Lana Tejida", 30000.0),
-    Product(9, "Cinturón de Cuero", 45000.0),
+    Product(9, "Jersey de Cuello Alto", 45000.0),
     Product(10, "Calcetines Tobilleros Pack", 20000.0)
+)
+val clientList = listOf(
+    Client("Laura Gómez"),
+    Client("Carlos Ramirez"),
+    Client("Ana Martínez"),
+    Client("Luis Fernández"),
+    Client("Maria Torres"),
+    Client("Jorge Pérez"),
+    Client("Sofia López"),
+    Client("Diego Castro"),
+    Client("Valentina Moreno"),
+    Client("Andrés Suárez"),
+    Client("Camila Ríos"),
+    Client("Mateo García"),
+    Client("Daniela Vargas"),
+    Client("Pepito Perez")
 )
 
 // --- COMPONENTES REUTILIZABLES ---
