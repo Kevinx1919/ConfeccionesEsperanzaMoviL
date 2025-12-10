@@ -112,4 +112,20 @@ interface ApiService {
     // Endpoints de Empleados
     @GET("User")
     suspend fun getUsers(@Header("Authorization") token: String): Response<EmployeesResponse>
+
+    // Endpoints de Pedidos
+    @GET("Order")
+    suspend fun getOrders(@Header("Authorization") token: String): Response<OrdersResponse>
+
+    @GET("Order/{id}")
+    suspend fun getOrder(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<Order>
+
+    @POST("Order")
+    suspend fun createOrder(
+        @Header("Authorization") token: String,
+        @Body order: OrderRequest
+    ): Response<OrderOperationResponse>
 }
