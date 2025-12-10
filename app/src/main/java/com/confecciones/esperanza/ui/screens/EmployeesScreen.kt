@@ -30,7 +30,8 @@ fun EmployeesScreen(
     onNavigateToCreate: () -> Unit,
     viewModel: EmployeeViewModel = viewModel()
 ) {
-    val employees by viewModel.employees.collectAsState()
+    val filteredEmployees by viewModel.filteredEmployees.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
@@ -59,40 +60,49 @@ fun EmployeesScreen(
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color(0xFFF8F8F8))
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF7C3AED))
-            } else if (error != null) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("⚠️", fontSize = 64.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(error!!, color = Color.Red, fontSize = 16.sp)
-                }
-            } else if (employees.isEmpty()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("👥", fontSize = 64.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("No hay empleados registrados", color = Color.Gray, fontSize = 16.sp)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(employees) { employee ->
-                        EmployeeCard(employee = employee, onClick = { onNavigateToDetail(employee.id) })
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = viewModel::onSearchQueryChange,
+                placeholderText = "Buscar empleado...",
+                modifier = Modifier.padding(16.dp)
+            )
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF7C3AED))
+                } else if (error != null) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("⚠️", fontSize = 64.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(error!!, color = Color.Red, fontSize = 16.sp)
+                    }
+                } else if (filteredEmployees.isEmpty()) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("👥", fontSize = 64.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("No se encontraron empleados", color = Color.Gray, fontSize = 16.sp)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(filteredEmployees) { employee ->
+                            EmployeeCard(employee = employee, onClick = { onNavigateToDetail(employee.id) })
+                        }
                     }
                 }
             }
