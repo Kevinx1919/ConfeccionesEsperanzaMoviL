@@ -85,7 +85,25 @@ fun MainApp() {
                  onNavigateToEmployees = {
                     navController.navigate("employees")
                 },
+                onNavigateToOrders = {
+                    navController.navigate("order_list")
+                },
+                onNavigateToCreateOrder = {
+                    navController.navigate("order_create")
+                },
+                onNavigateToOrderDetail = { orderId ->
+                    navController.navigate("order_detail/$orderId")
+                },
                 mainViewModel = mainViewModel
+            )
+        }
+        
+        composable("order_list") {
+            OrderListScreen(
+                token = token ?: "",
+                onNavigateToDetail = { orderId ->
+                    navController.navigate("order_detail/$orderId")
+                }
             )
         }
 
@@ -237,6 +255,25 @@ fun MainApp() {
                     // TODO: Navigate to employee detail
                 },
                 onNavigateToCreate = { /* TODO: Navigate to create employee */ }
+            )
+        }
+
+        composable("order_create") {
+            CreateOrderScreen(
+                navController = navController,
+                token = token ?: ""
+            )
+        }
+
+        composable(
+            route = "order_detail/{orderId}",
+            arguments = listOf(navArgument("orderId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getInt("orderId") ?: 0
+            OrderDetailScreen(
+                navController = navController,
+                orderId = orderId,
+                token = token ?: ""
             )
         }
     }

@@ -51,6 +51,9 @@ fun DashboardScreen(
     onNavigateToStockDetail: (Int) -> Unit,
     onNavigateToTasks: () -> Unit,
     onNavigateToEmployees: () -> Unit,
+    onNavigateToOrders: () -> Unit,
+    onNavigateToCreateOrder: () -> Unit,
+    onNavigateToOrderDetail: (Int) -> Unit,
     mainViewModel: MainViewModel = viewModel(),
     dashboardViewModel: DashboardViewModel = viewModel()
 ) {
@@ -61,6 +64,7 @@ fun DashboardScreen(
     val drawerItems = listOf(
         DrawerMenuItem("Mi Perfil", "👤", "perfil"),
         DrawerMenuItem("", "", "", isDivider = true),
+        DrawerMenuItem("Pedidos", "📦", "pedidos"),
         DrawerMenuItem("Admin", "👤", "admin"),
         DrawerMenuItem("Empleados", "👥", "empleados"),
         DrawerMenuItem("Tareas", "📋", "tareas"),
@@ -87,7 +91,7 @@ fun DashboardScreen(
                         "clientes" -> onNavigateToClientes()
                         "tareas" -> onNavigateToTasks()
                         "empleados" -> onNavigateToEmployees()
-                        // Aquí puedes agregar más rutas cuando las implementes
+                        "pedidos" -> onNavigateToOrders()
                     }
                 },
                 onLogout = {
@@ -116,6 +120,13 @@ fun DashboardScreen(
                     ) {
                         Icon(Icons.Default.Add, "Agregar Material", tint = Color.White)
                     }
+                } else if (selectedTopItem == TopMenuItem.PEDIDOS) {
+                     FloatingActionButton(
+                        onClick = onNavigateToCreateOrder,
+                        containerColor = Color(0xFF7C3AED)
+                    ) {
+                        Icon(Icons.Default.Add, "Agregar Pedido", tint = Color.White)
+                    }
                 }
             }
         ) { paddingValues ->
@@ -127,7 +138,10 @@ fun DashboardScreen(
             ) {
                 when (selectedTopItem) {
                     TopMenuItem.INICIO -> InicioContent(userName, dashboardViewModel, token)
-                    TopMenuItem.PEDIDOS -> PedidosContent()
+                    TopMenuItem.PEDIDOS -> OrderListScreen(
+                        token = token,
+                        onNavigateToDetail = onNavigateToOrderDetail
+                    )
                     TopMenuItem.STOCK -> StockScreen(
                         token = token,
                         onNavigateToDetail = onNavigateToStockDetail
@@ -487,17 +501,6 @@ fun ErrorCard(message: String) {
             Text(text = "⚠️", fontSize = 20.sp)
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = message, fontSize = 13.sp, color = Color(0xFFC62828))
-        }
-    }
-}
-
-@Composable
-fun PedidosContent() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "📦", fontSize = 64.sp)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Módulo de Pedidos", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
