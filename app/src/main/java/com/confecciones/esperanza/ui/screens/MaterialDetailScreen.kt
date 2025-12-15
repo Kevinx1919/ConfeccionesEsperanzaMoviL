@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -28,7 +28,8 @@ fun MaterialDetailScreen(
     materialId: Int,
     token: String,
     onNavigateBack: () -> Unit,
-    onNavigateToEdit: (Int) -> Unit
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigateToDelete: (Int) -> Unit
 ) {
     val viewModel: MaterialDetailViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
@@ -49,7 +50,7 @@ fun MaterialDetailScreen(
                 title = { Text("Detalle del Material", fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF7C3AED))
@@ -119,7 +120,7 @@ fun MaterialDetailScreen(
                                 Text("Editar")
                             }
                             Button(
-                                onClick = { viewModel.deleteMaterial(token, material.idMaterial) },
+                                onClick = { onNavigateToDelete(material.idMaterial) },
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                             ) {
@@ -140,11 +141,15 @@ fun MaterialDetailScreen(
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text("Información del Material", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(16.dp))
-                                InfoRow("Cantidad", "${material.cantidad.toInt()} Unidades")
-                                InfoRow("Proveedor", material.proveedor)
-                                InfoRow("Tipo", material.tipoMaterialDescripcion)
-                                InfoRow("Color", material.colorDescripcion)
-                                InfoRow("Fecha de Entrada", material.fechaEntrada.split("T").first())
+                                InfoRowWithIcon("🔢", "Cantidad", "${material.cantidad.toInt()} Unidades")
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                InfoRowWithIcon("🚚", "Proveedor", material.proveedor)
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                InfoRowWithIcon("🏷️", "Tipo", material.tipoMaterialDescripcion)
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                InfoRowWithIcon("🎨", "Color", material.colorDescripcion)
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                InfoRowWithIcon("📅", "Fecha de Entrada", material.fechaEntrada.split("T").first())
                             }
                         }
                     }
@@ -159,9 +164,13 @@ fun MaterialDetailScreen(
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
-    Row(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(label, fontWeight = FontWeight.Bold, modifier = Modifier.width(120.dp))
-        Text(value)
+fun InfoRowWithIcon(icon: String, label: String, value: String) {
+    Row(modifier = Modifier.padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(icon, fontSize = 20.sp)
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(label, fontSize = 12.sp, color = Color.Gray)
+            Text(value, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        }
     }
 }
