@@ -188,6 +188,9 @@ fun MainApp() {
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToEdit = { id ->
                     navController.navigate("material_edit/$id")
+                },
+                onNavigateToDelete = { id ->
+                    navController.navigate("material_delete/$id")
                 }
             )
         }
@@ -198,6 +201,18 @@ fun MainApp() {
         ) { backStackEntry ->
             val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
             EditMaterialScreen(
+                materialId = materialId,
+                token = token ?: "",
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = "material_delete/{materialId}",
+            arguments = listOf(navArgument("materialId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
+            DeleteMaterialScreen(
                 materialId = materialId,
                 token = token ?: "",
                 onNavigateBack = { navController.popBackStack() }
