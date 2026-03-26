@@ -30,13 +30,10 @@ import kotlin.random.Random
 fun OrderDetailScreen(
     navController: NavController,
     orderId: Int,
-    token: String,
     orderViewModel: OrderViewModel = viewModel()
 ) {
-    LaunchedEffect(orderId, token) {
-        if (token.isNotBlank()) {
-            orderViewModel.loadOrderById(token, orderId)
-        }
+    LaunchedEffect(orderId) {
+        orderViewModel.loadOrderById(orderId)
     }
 
     val order by orderViewModel.selectedOrder.collectAsState()

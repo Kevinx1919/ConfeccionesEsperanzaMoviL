@@ -37,7 +37,7 @@ class LoginViewModel : ViewModel() {
                         _uiState.value = LoginUiState.Error(loginResponse.message)
                     }
                 } else {
-                    _uiState.value = LoginUiState.Error("Error de conexión: ${response.code()}")
+                    _uiState.value = LoginUiState.Error("Error de conexion: ${response.code()}")
                 }
             } catch (e: Exception) {
                 _uiState.value = LoginUiState.Error("Error: ${e.message ?: "Desconocido"}")

@@ -64,16 +64,19 @@ data class DetallePedido(
     val fechaCreacion: String
 )
 
-// Respuesta de Resumen de Ventas
-data class ResumenVentasResponse(
-    val ventasHoy: Double,
-    val ventasSemana: Double,
-    val ventasMes: Double,
-    val tendencia: List<TendenciaVenta>
+data class DashboardAlerta(
+    val id: Int? = null,
+    val tipo: String? = null,
+    val titulo: String? = null,
+    val descripcion: String? = null,
+    val prioridad: String? = null,
+    val fecha: String? = null
 )
 
-data class TendenciaVenta(
-    val fecha: String,
-    val monto: Double,
-    val pedidos: Int
+data class ProductividadUsuario(
+    val userId: String? = null,
+    val userName: String? = null,
+    val tareasCompletadas: Int? = null,
+    val tareasEnProceso: Int? = null,
+    val eficiencia: Double? = null
 )

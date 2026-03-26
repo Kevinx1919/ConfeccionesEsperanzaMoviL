@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -15,17 +14,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.confecciones.esperanza.ui.screens.*
+import com.confecciones.esperanza.ui.theme.ConfeccionesEsperanzaTheme
 import com.confecciones.esperanza.viewmodels.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+            ConfeccionesEsperanzaTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
                     MainApp()
                 }
             }
@@ -39,8 +36,6 @@ fun MainApp() {
     val mainViewModel: MainViewModel = viewModel()
     val isLoggedIn by mainViewModel.isLoggedIn.collectAsState()
     val userName by mainViewModel.userName.collectAsState()
-    val token by mainViewModel.token.collectAsState()
-
     val startDestination = if (isLoggedIn) "dashboard" else "login"
 
     NavHost(
@@ -61,7 +56,6 @@ fun MainApp() {
         composable("dashboard") {
             DashboardScreen(
                 userName = userName ?: "Usuario",
-                token = token ?: "",
                 onLogout = {
                     navController.navigate("login") {
                         popUpTo("dashboard") { inclusive = true }
@@ -100,7 +94,7 @@ fun MainApp() {
         
         composable("order_list") {
             OrderListScreen(
-                token = token ?: "",
+                onNavigateBack = { navController.popBackStack() },
                 onNavigateToDetail = { orderId ->
                     navController.navigate("order_detail/$orderId")
                 }
@@ -109,7 +103,6 @@ fun MainApp() {
 
         composable("profile") {
             ProfileScreen(
-                token = token ?: "",
                 onNavigateBack = {
                     navController.popBackStack()
                 }
@@ -118,7 +111,6 @@ fun MainApp() {
 
         composable("clientes") {
             ClientesScreen(
-                token = token ?: "",
                 onNavigateBack = {
                     navController.popBackStack()
                 },
@@ -138,7 +130,6 @@ fun MainApp() {
             val clienteId = backStackEntry.arguments?.getInt("clienteId") ?: 0
             ClienteDetailScreen(
                 clienteId = clienteId,
-                token = token ?: "",
                 onNavigateBack = {
                     navController.popBackStack()
                 },
@@ -153,7 +144,6 @@ fun MainApp() {
 
         composable("cliente_create") {
             CreateClienteScreen(
-                token = token ?: "",
                 onNavigateBack = {
                     navController.popBackStack()
                 }
@@ -167,7 +157,6 @@ fun MainApp() {
             val clienteId = backStackEntry.arguments?.getInt("clienteId") ?: 0
             EditClienteScreen(
                 clienteId = clienteId,
-                token = token ?: "",
                 onNavigateBack = {
                     navController.popBackStack()
                 }
@@ -181,7 +170,6 @@ fun MainApp() {
             val clienteId = backStackEntry.arguments?.getInt("clienteId") ?: 0
             DeleteClienteScreen(
                 clienteId = clienteId,
-                token = token ?: "",
                 onNavigateBack = {
                     navController.popBackStack()
                 }
@@ -190,7 +178,6 @@ fun MainApp() {
 
         composable("stock_create") {
             CreateMaterialScreen(
-                token = token ?: "",
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -202,7 +189,6 @@ fun MainApp() {
             val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
             MaterialDetailScreen(
                 materialId = materialId,
-                token = token ?: "",
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToEdit = { id ->
                     navController.navigate("material_edit/$id")
@@ -220,7 +206,6 @@ fun MainApp() {
             val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
             EditMaterialScreen(
                 materialId = materialId,
-                token = token ?: "",
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -232,14 +217,12 @@ fun MainApp() {
             val materialId = backStackEntry.arguments?.getInt("materialId") ?: 0
             DeleteMaterialScreen(
                 materialId = materialId,
-                token = token ?: "",
                 onNavigateBack = { navController.popBackStack() }
             )
         }
 
         composable("tasks") {
             TasksScreen(
-                token = token ?: "",
                 onNavigateToDetail = { taskId ->
                     // TODO: Navigate to task detail
                 },
@@ -249,7 +232,6 @@ fun MainApp() {
         }
         composable("employees") {
             EmployeesScreen(
-                token = token ?: "",
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToDetail = { employeeId ->
                     // TODO: Navigate to employee detail
@@ -260,8 +242,7 @@ fun MainApp() {
 
         composable("order_create") {
             CreateOrderScreen(
-                navController = navController,
-                token = token ?: ""
+                navController = navController
             )
         }
 
@@ -272,8 +253,7 @@ fun MainApp() {
             val orderId = backStackEntry.arguments?.getInt("orderId") ?: 0
             OrderDetailScreen(
                 navController = navController,
-                orderId = orderId,
-                token = token ?: ""
+                orderId = orderId
             )
         }
     }

@@ -16,11 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.confecciones.esperanza.models.Material
+import com.confecciones.esperanza.ui.theme.*
 import com.confecciones.esperanza.viewmodels.StockViewModel
 
 @Composable
 fun StockScreen(
-    token: String,
     onNavigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: StockViewModel = viewModel()
@@ -30,47 +30,48 @@ fun StockScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(token) {
-        viewModel.getMateriales(token)
+    LaunchedEffect(Unit) {
+        viewModel.getMateriales()
     }
 
     Column(modifier = modifier.fillMaxSize()) {
         SearchBar(
             query = searchQuery,
             onQueryChange = viewModel::onSearchQueryChange,
-            placeholderText = "Buscar material...",
-            modifier = Modifier.padding(16.dp)
+            placeholderText = "Buscar material",
+            modifier = Modifier.padding(AppSpacing.md)
         )
 
         Box(modifier = Modifier.fillMaxSize()) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF7C3AED))
-            } else if (error != null) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("⚠️", fontSize = 64.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(error!!, color = Color.Red, fontSize = 16.sp)
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = PurplePrimary)
                 }
-            } else if (filteredMateriales.isEmpty()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("📊", fontSize = 64.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("No se encontraron materiales", color = Color.Gray, fontSize = 16.sp)
+                error != null -> {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Ocurrio un error", fontSize = 16.sp, color = AppError)
+                    }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 80.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredMateriales) { material ->
-                        MaterialCard(material = material, onClick = { onNavigateToDetail(material.idMaterial) })
+                filteredMateriales.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("No se encontraron materiales", color = AppTextSecondary, fontSize = 16.sp)
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = AppSpacing.md, end = AppSpacing.md, bottom = 80.dp),
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+                    ) {
+                        items(filteredMateriales) { material ->
+                            MaterialCard(material = material, onClick = { onNavigateToDetail(material.idMaterial) })
+                        }
                     }
                 }
             }
@@ -87,62 +88,61 @@ fun MaterialCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.sm),
+        shape = RoundedCornerShape(AppRadius.lg)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(AppSpacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(52.dp)
                     .background(
-                        color = Color(0xFF7C3AED).copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp)
+                        color = PurplePrimary.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(AppRadius.md)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = material.nombre.firstOrNull()?.uppercase() ?: "M",
-                    fontSize = 24.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF7C3AED)
+                    color = PurplePrimary
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(AppSpacing.md))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = material.nombre,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937)
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppTextPrimary
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
                     text = "Proveedor: ${material.proveedor}",
                     fontSize = 13.sp,
-                    color = Color.Gray
+                    color = AppTextSecondary
                 )
             }
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "${material.cantidad.toInt()} Unidades",
+                    text = "${material.cantidad.toInt()} unidades",
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937)
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppTextPrimary
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
                     text = material.fechaEntrada.split("T").first(),
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = AppTextMuted
                 )
             }
         }

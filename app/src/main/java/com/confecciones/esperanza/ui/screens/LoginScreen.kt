@@ -4,11 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -16,24 +20,28 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.confecciones.esperanza.viewmodels.LoginViewModel
+import com.confecciones.esperanza.ui.theme.AppColors
+import com.confecciones.esperanza.ui.theme.FullWidthPrimaryAppButton
+import com.confecciones.esperanza.ui.theme.AppGradients
+import com.confecciones.esperanza.ui.theme.AppRadius
+import com.confecciones.esperanza.ui.theme.AppSpacing
 import com.confecciones.esperanza.viewmodels.LoginUiState
+import com.confecciones.esperanza.viewmodels.LoginViewModel
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: (String, String) -> Unit // name, token
+    onLoginSuccess: (String, String) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showRecoveryInfo by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
 
-    // Manejar estado de éxito
     LaunchedEffect(uiState) {
         if (uiState is LoginUiState.Success) {
             val response = (uiState as LoginUiState.Success).response
@@ -46,231 +54,156 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF7C3AED), // Purple
-                        Color(0xFFEC4899)  // Pink
-                    )
-                )
-            )
+            .background(AppGradients.primary)
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.92f)
                 .align(Alignment.Center),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White.copy(alpha = 0.95f)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            shape = RoundedCornerShape(AppRadius.xl),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(32.dp),
+                    .padding(AppSpacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Iniciar Sesión",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF7C3AED),
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    text = "Confecciones Esperanza",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppColors.textSecondary
                 )
-
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
-                    text = "Ingresa tus credenciales para acceder",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    text = "Inicia sesion",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = AppColors.primary
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Text(
+                    text = "Accede al panel de gestion",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppColors.textMuted,
+                    textAlign = TextAlign.Center
                 )
 
-                // Campo de Email
-                Column(
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Correo") },
+                    leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
+                    placeholder = { Text("usuario@empresa.com") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    ) {
-                        Text(
-                            text = "👤",
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text(
-                            text = "Email",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF7C3AED)
-                        )
-                    }
+                    singleLine = true,
+                    enabled = uiState !is LoginUiState.Loading,
+                    shape = RoundedCornerShape(AppRadius.md)
+                )
 
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = { Text("usuario@ejemplo.com", color = Color.Gray.copy(alpha = 0.6f)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        enabled = uiState !is LoginUiState.Loading,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF7C3AED),
-                            unfocusedBorderColor = Color(0xFFE0E0E0),
-                            focusedContainerColor = Color(0xFFF5F3FF),
-                            unfocusedContainerColor = Color(0xFFF8F8F8)
-                        )
-                    )
-                }
+                Spacer(modifier = Modifier.height(AppSpacing.md))
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Campo de Contraseña
-                Column(
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Contrasena") },
+                    placeholder = { Text("Ingresa tu contrasena") },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    ) {
-                        Text(
-                            text = "🔒",
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text(
-                            text = "Contraseña",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF7C3AED)
-                        )
-                    }
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        placeholder = { Text("Ingresa tu contraseña", color = Color.Gray.copy(alpha = 0.6f)) },
-                        visualTransformation = if (passwordVisible)
-                            VisualTransformation.None else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        enabled = uiState !is LoginUiState.Loading,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF7C3AED),
-                            unfocusedBorderColor = Color(0xFFE0E0E0),
-                            focusedContainerColor = Color(0xFFF5F3FF),
-                            unfocusedContainerColor = Color(0xFFF8F8F8)
-                        ),
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Text(
-                                    text = if (passwordVisible) "👁️" else "👁️‍🗨️",
-                                    fontSize = 20.sp
-                                )
-                            }
+                    singleLine = true,
+                    enabled = uiState !is LoginUiState.Loading,
+                    shape = RoundedCornerShape(AppRadius.md),
+                    leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                contentDescription = null
+                            )
                         }
-                    )
-                }
+                    }
+                )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.md))
 
-                // Checkbox Recordarme
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "📋",
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(end = 4.dp)
-                    )
                     Checkbox(
                         checked = rememberMe,
                         onCheckedChange = { rememberMe = it },
-                        enabled = uiState !is LoginUiState.Loading,
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFF7C3AED)
-                        )
+                        enabled = uiState !is LoginUiState.Loading
                     )
                     Text(
-                        "Recordarme",
-                        fontSize = 14.sp,
-                        color = Color.Gray
+                        text = "Recordar sesion",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AppColors.textSecondary
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.md))
 
-                // Botón de Login
-                Button(
+                FullWidthPrimaryAppButton(
+                    text = "Entrar",
                     onClick = {
                         if (email.isNotBlank() && password.isNotBlank()) {
                             viewModel.login(email, password, rememberMe)
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    enabled = uiState !is LoginUiState.Loading &&
-                            email.isNotBlank() && password.isNotBlank(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF7C3AED),
-                        disabledContainerColor = Color(0xFF7C3AED).copy(alpha = 0.5f)
-                    )
-                ) {
-                    if (uiState is LoginUiState.Loading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.White
-                        )
-                    } else {
+                    enabled = uiState !is LoginUiState.Loading && email.isNotBlank() && password.isNotBlank(),
+                    content = {
+                        if (uiState is LoginUiState.Loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(22.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Entrar", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+
+                TextButton(onClick = { showRecoveryInfo = !showRecoveryInfo }) {
+                    Text("Olvidaste tu contrasena?")
+                }
+
+                if (showRecoveryInfo) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = AppSpacing.xs),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFDF2F8)),
+                        shape = RoundedCornerShape(AppRadius.md)
+                    ) {
                         Text(
-                            "Iniciar Sesión",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "La recuperacion de contrasena se gestiona con el administrador.",
+                            modifier = Modifier.padding(AppSpacing.md),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = AppColors.rose
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Enlaces
-                Text(
-                    text = "¿No tienes cuenta? Regístrate aquí",
-                    fontSize = 13.sp,
-                    color = Color(0xFF7C3AED),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                Text(
-                    text = "¿Olvidaste tu contraseña?",
-                    fontSize = 13.sp,
-                    color = Color(0xFF7C3AED)
-                )
-
-                // Mostrar mensajes de error
                 if (uiState is LoginUiState.Error) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.md))
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFFFEBEE)
-                        ),
-                        shape = RoundedCornerShape(8.dp)
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEE2E2)),
+                        shape = RoundedCornerShape(AppRadius.md)
                     ) {
                         Text(
                             text = (uiState as LoginUiState.Error).message,
-                            modifier = Modifier.padding(12.dp),
-                            color = Color(0xFFC62828),
-                            fontSize = 13.sp
+                            modifier = Modifier.padding(AppSpacing.md),
+                            color = AppColors.error,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }

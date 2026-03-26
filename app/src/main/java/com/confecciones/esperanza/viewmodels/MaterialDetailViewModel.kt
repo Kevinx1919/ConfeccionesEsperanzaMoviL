@@ -20,11 +20,11 @@ class MaterialDetailViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<MaterialDetailUiState>(MaterialDetailUiState.Loading)
     val uiState: StateFlow<MaterialDetailUiState> = _uiState
 
-    fun getMaterial(token: String, materialId: Int) {
+    fun getMaterial(materialId: Int) {
         viewModelScope.launch {
             _uiState.value = MaterialDetailUiState.Loading
             try {
-                val response = RetrofitClient.apiService.getMaterial("Bearer $token", materialId)
+                val response = RetrofitClient.apiService.getMaterial(materialId)
                 if (response.isSuccessful) {
                     response.body()?.let {
                         _uiState.value = MaterialDetailUiState.Success(it)
@@ -35,22 +35,22 @@ class MaterialDetailViewModel : ViewModel() {
                     _uiState.value = MaterialDetailUiState.Error("Error al obtener el material")
                 }
             } catch (e: Exception) {
-                _uiState.value = MaterialDetailUiState.Error("Error de conexión: ${e.message}")
+                _uiState.value = MaterialDetailUiState.Error("Error de conexion: ${e.message}")
             }
         }
     }
 
-    fun deleteMaterial(token: String, materialId: Int) {
+    fun deleteMaterial(materialId: Int) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.apiService.deleteMaterial("Bearer $token", materialId)
+                val response = RetrofitClient.apiService.deleteMaterial(materialId)
                 if (response.isSuccessful) {
                     _uiState.value = MaterialDetailUiState.Deleted
                 } else {
                     _uiState.value = MaterialDetailUiState.Error("Error al eliminar el material")
                 }
             } catch (e: Exception) {
-                _uiState.value = MaterialDetailUiState.Error("Error de conexión: ${e.message}")
+                _uiState.value = MaterialDetailUiState.Error("Error de conexion: ${e.message}")
             }
         }
     }

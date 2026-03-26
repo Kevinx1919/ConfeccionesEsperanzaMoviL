@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 
 class OrderViewModel : ViewModel() {
 
-    // --- Para la lista de pedidos y búsqueda ---
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
@@ -24,8 +23,9 @@ class OrderViewModel : ViewModel() {
             } else {
                 orders.filter {
                     it.id.toString().contains(query, ignoreCase = true) ||
-                            (it.cliente?.let { c -> "${c.nombreCliente} ${c.apellidoCliente}" }?.contains(query, ignoreCase = true) ?: false) ||
-                            it.estado?.contains(query, ignoreCase = true) == true
+                        (it.cliente?.let { c -> "${c.nombreCliente} ${c.apellidoCliente}" }
+                            ?.contains(query, ignoreCase = true) ?: false) ||
+                        it.estado?.contains(query, ignoreCase = true) == true
                 }
             }
         }.let { sourceFlow ->
@@ -36,11 +36,9 @@ class OrderViewModel : ViewModel() {
             state.asStateFlow()
         }
 
-    // --- Para la pantalla de detalle ---
     private val _selectedOrder = MutableStateFlow<Order?>(null)
     val selectedOrder: StateFlow<Order?> = _selectedOrder
 
-    // --- Para el formulario de creación ---
     private val _clients = MutableStateFlow<List<Cliente>>(emptyList())
     val clients: StateFlow<List<Cliente>> = _clients
 
@@ -54,68 +52,68 @@ class OrderViewModel : ViewModel() {
         _searchQuery.value = query
     }
 
-    fun loadOrders(token: String) {
+    fun loadOrders() {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                val response = RetrofitClient.apiService.getOrders("Bearer $token")
+                val response = RetrofitClient.apiService.getOrders()
                 if (response.isSuccessful) {
                     _orders.value = response.body()?.pedidos ?: emptyList()
                 } else {
                     _error.value = "Error al cargar los pedidos: ${response.message()}"
                 }
             } catch (e: Exception) {
-                _error.value = "Excepción al cargar pedidos: ${e.message}"
+                _error.value = "Excepcion al cargar pedidos: ${e.message}"
             }
             _isLoading.value = false
         }
     }
 
-    fun loadOrderById(token: String, orderId: Int) {
+    fun loadOrderById(orderId: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            _selectedOrder.value = null // Limpiar el pedido anterior
+            _selectedOrder.value = null
             _error.value = null
             try {
-                val response = RetrofitClient.apiService.getOrder("Bearer $token", orderId)
+                val response = RetrofitClient.apiService.getOrder(orderId)
                 if (response.isSuccessful) {
                     _selectedOrder.value = response.body()
                 } else {
                     _error.value = "Error al cargar el detalle del pedido"
                 }
             } catch (e: Exception) {
-                _error.value = "Excepción al cargar detalle: ${e.message}"
+                _error.value = "Excepcion al cargar detalle: ${e.message}"
             }
             _isLoading.value = false
         }
     }
 
-    fun loadClients(token: String) {
+    fun loadClients() {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.apiService.getClientes("Bearer $token")
+                val response = RetrofitClient.apiService.getClientes()
                 if (response.isSuccessful) {
                     _clients.value = response.body()?.clientes ?: emptyList()
                 }
             } catch (e: Exception) {
-                // Manejar error silenciosamente o mostrarlo si es necesario
+                // Silencioso para no bloquear el formulario
             }
         }
     }
 
-    fun createOrder(token: String, newOrder: OrderRequest, onResult: (Boolean, String) -> Unit) {
+    fun createOrder(newOrder: OrderRequest, onResult: (Boolean, String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.apiService.createOrder("Bearer $token", newOrder)
+                val response = RetrofitClient.apiService.createOrder(newOrder)
                 if (response.isSuccessful && response.body()?.exito == true) {
-                    onResult(true, response.body()?.mensaje ?: "Pedido creado con éxito")
-                    loadOrders(token) // Recargar la lista de pedidos
+                    onResult(true, response.body()?.mensaje ?: "Pedido creado con exito")
+                    loadOrders()
                 } else {
                     onResult(false, response.body()?.mensaje ?: "Error al crear el pedido: ${response.message()}")
                 }
             } catch (e: Exception) {
-                onResult(false, "Excepción al crear el pedido: ${e.message}")
+                onResult(false, "Excepcion al crear el pedido: ${e.message}")
             }
         }
     }

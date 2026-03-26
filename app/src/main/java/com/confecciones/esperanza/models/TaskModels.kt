@@ -17,3 +17,12 @@ data class TareasResponse(
     val tareas: List<Tarea>,
     val totalCount: Int
 )
+
+data class TareaAsignacion(
+    val idAsignacion: Int,
+    val tareaId: Int,
+    val usuarioId: String,
+    val estado: String,
+    val fechaAsignacion: String,
+    val fechaActualizacion: String
+)

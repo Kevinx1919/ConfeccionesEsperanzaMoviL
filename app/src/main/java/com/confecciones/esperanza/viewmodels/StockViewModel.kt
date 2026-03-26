@@ -36,24 +36,24 @@ class StockViewModel : ViewModel() {
         } else {
             _materiales.value.filter {
                 it.nombre.lowercase().contains(query) ||
-                it.proveedor.lowercase().contains(query)
+                    it.proveedor.lowercase().contains(query)
             }
         }
     }
 
-    fun getMateriales(token: String) {
+    fun getMateriales() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = RetrofitClient.apiService.getMateriales("Bearer $token")
+                val response = RetrofitClient.apiService.getMateriales()
                 if (response.isSuccessful) {
                     _materiales.value = response.body()?.materiales ?: emptyList()
-                    filterMateriales() // Initial filter
+                    filterMateriales()
                 } else {
                     _error.value = "Error al obtener los materiales"
                 }
             } catch (e: Exception) {
-                _error.value = "Error de conexión: ${e.message}"
+                _error.value = "Error de conexion: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

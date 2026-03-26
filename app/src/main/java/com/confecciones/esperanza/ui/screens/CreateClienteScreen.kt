@@ -25,7 +25,6 @@ import com.confecciones.esperanza.viewmodels.CustomerUiState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateClienteScreen(
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: CustomerViewModel = viewModel()
 ) {
@@ -236,7 +235,7 @@ fun CreateClienteScreen(
                                             direccionCliente = direccion,
                                             codigoPostalCliente = codigoPostal
                                         )
-                                        viewModel.createCliente(token, request)
+                                        viewModel.createCliente(request)
                                     }
                                 },
                                 modifier = Modifier.weight(1f),

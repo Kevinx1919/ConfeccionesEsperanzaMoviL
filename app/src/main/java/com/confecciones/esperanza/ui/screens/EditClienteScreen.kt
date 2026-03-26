@@ -27,7 +27,6 @@ import com.confecciones.esperanza.viewmodels.CustomerUiState
 @Composable
 fun EditClienteScreen(
     clienteId: Int,
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: CustomerViewModel = viewModel()
 ) {
@@ -45,7 +44,7 @@ fun EditClienteScreen(
 
     // Cargar datos del cliente
     LaunchedEffect(clienteId) {
-        viewModel.loadCliente(token, clienteId)
+        viewModel.loadCliente(clienteId)
     }
 
     // Rellenar formulario cuando se cargue el cliente
@@ -106,7 +105,7 @@ fun EditClienteScreen(
                             Text((clienteState as CustomerUiState.Error).message, color = Color(0xFFDC2626))
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
-                                onClick = { viewModel.loadCliente(token, clienteId) },
+                                onClick = { viewModel.loadCliente(clienteId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED))
                             ) {
                                 Text("Reintentar")
@@ -277,7 +276,7 @@ fun EditClienteScreen(
                                                     direccionCliente = direccion,
                                                     codigoPostalCliente = codigoPostal
                                                 )
-                                                viewModel.updateCliente(token, clienteId, request)
+                                                viewModel.updateCliente(clienteId, request)
                                             }
                                         },
                                         modifier = Modifier.weight(1f),

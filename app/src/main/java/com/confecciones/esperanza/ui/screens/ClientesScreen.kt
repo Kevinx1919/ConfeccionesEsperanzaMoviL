@@ -9,7 +9,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,13 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.confecciones.esperanza.models.Cliente
-import com.confecciones.esperanza.viewmodels.CustomerViewModel
+import com.confecciones.esperanza.ui.theme.*
 import com.confecciones.esperanza.viewmodels.CustomerUiState
+import com.confecciones.esperanza.viewmodels.CustomerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientesScreen(
-    token: String,
     onNavigateBack: () -> Unit,
     onNavigateToDetail: (Int) -> Unit,
     onNavigateToCreate: () -> Unit,
@@ -36,32 +41,27 @@ fun ClientesScreen(
 ) {
     val clientesState by viewModel.clientesState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val filteredClientes = remember(clientesState, searchQuery) {
-        viewModel.getFilteredClientes()
-    }
+    val filteredClientes = remember(clientesState, searchQuery) { viewModel.getFilteredClientes() }
 
     LaunchedEffect(Unit) {
-        viewModel.loadClientes(token)
+        viewModel.loadClientes()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Clientes", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text("Clientes", fontWeight = FontWeight.SemiBold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null, tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF7C3AED))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = PurplePrimary)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToCreate,
-                containerColor = Color(0xFF7C3AED)
-            ) {
-                Icon(Icons.Default.Add, "Agregar Cliente", tint = Color.White)
+            FloatingActionButton(onClick = onNavigateToCreate) {
+                Icon(Icons.Outlined.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->
@@ -69,39 +69,28 @@ fun ClientesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF8F8F8))
+                .background(AppBackground)
         ) {
-            // Barra de búsqueda
             SearchBar(
                 query = searchQuery,
                 onQueryChange = { viewModel.setSearchQuery(it) },
-                placeholderText = "Buscar cliente...",
-                modifier = Modifier.padding(16.dp)
+                placeholderText = "Buscar cliente",
+                modifier = Modifier.padding(AppSpacing.md)
             )
 
-            // Contenido
             when (clientesState) {
                 is CustomerUiState.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFF7C3AED))
+                        CircularProgressIndicator(color = PurplePrimary)
                     }
                 }
 
                 is CustomerUiState.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
-                            Text("⚠️", fontSize = 64.sp)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                (clientesState as CustomerUiState.Error).message,
-                                color = Color(0xFFDC2626),
-                                fontSize = 16.sp
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = { viewModel.loadClientes(token) },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED))
-                            ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(AppSpacing.lg)) {
+                            Text("Ocurrio un error", fontSize = 16.sp, color = AppError)
+                            Spacer(modifier = Modifier.height(AppSpacing.sm))
+                            Button(onClick = { viewModel.loadClientes() }) {
                                 Text("Reintentar")
                             }
                         }
@@ -111,21 +100,16 @@ fun ClientesScreen(
                 is CustomerUiState.Success<*> -> {
                     if (filteredClientes.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("🔍", fontSize = 64.sp)
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    if (searchQuery.isBlank()) "No hay clientes registrados" else "No se encontraron clientes",
-                                    fontSize = 16.sp,
-                                    color = Color.Gray
-                                )
-                            }
+                            Text(
+                                text = if (searchQuery.isBlank()) "No hay clientes registrados" else "No se encontraron clientes",
+                                color = AppTextSecondary
+                            )
                         }
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            contentPadding = PaddingValues(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
+                            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
                         ) {
                             items(filteredClientes) { cliente ->
                                 ClienteCard(cliente = cliente, onClick = { onNavigateToDetail(cliente.idCliente) })
@@ -134,7 +118,7 @@ fun ClientesScreen(
                     }
                 }
 
-                else -> {}
+                else -> Unit
             }
         }
     }
@@ -152,29 +136,21 @@ fun SearchBar(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text(placeholderText, color = Color.Gray) },
+        placeholder = { Text(placeholderText, color = AppTextMuted) },
         leadingIcon = {
-            Icon(Icons.Default.Search, "Buscar", tint = Color(0xFF7C3AED))
+            Icon(Icons.Outlined.Search, contentDescription = null, tint = PurplePrimary)
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Default.Clear, "Limpiar", tint = Color.Gray)
+                    Icon(Icons.Outlined.Clear, contentDescription = null, tint = AppTextMuted)
                 }
             }
         },
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF7C3AED),
-            unfocusedBorderColor = Color(0xFFE0E0E0),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
-        ),
+        shape = RoundedCornerShape(AppRadius.md),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(
-            onSearch = { keyboardController?.hide() }
-        ),
+        keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
         singleLine = true
     )
 }
@@ -188,77 +164,65 @@ fun ClienteCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.sm),
+        shape = RoundedCornerShape(AppRadius.lg)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(AppSpacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar
             Box(
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(52.dp)
                     .background(
-                        color = Color(0xFF7C3AED).copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp)
+                        color = PurplePrimary.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(AppRadius.md)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = cliente.nombreCliente.firstOrNull()?.uppercase() ?: "C",
-                    fontSize = 24.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF7C3AED)
+                    color = PurplePrimary
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(AppSpacing.md))
 
-            // Info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = cliente.nombreCompleto,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937)
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppTextPrimary
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("📧", fontSize = 12.sp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = cliente.emailCliente,
-                        fontSize = 13.sp,
-                        color = Color.Gray
-                    )
+                    Icon(Icons.Outlined.Email, contentDescription = null, tint = AppTextMuted, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(AppSpacing.xs))
+                    Text(text = cliente.emailCliente, fontSize = 13.sp, color = AppTextSecondary)
                 }
                 Spacer(modifier = Modifier.height(2.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("📱", fontSize = 12.sp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = cliente.telefonoCliente,
-                        fontSize = 13.sp,
-                        color = Color.Gray
-                    )
+                    Icon(Icons.Outlined.Phone, contentDescription = null, tint = AppTextMuted, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(AppSpacing.xs))
+                    Text(text = cliente.telefonoCliente, fontSize = 13.sp, color = AppTextSecondary)
                 }
             }
 
-            // Badge de pedidos
             Surface(
-                color = Color(0xFF7C3AED).copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
+                color = PurplePrimary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(AppRadius.sm)
             ) {
                 Text(
                     text = "${cliente.totalPedidos} pedidos",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF7C3AED)
+                    color = PurplePrimary
                 )
             }
         }

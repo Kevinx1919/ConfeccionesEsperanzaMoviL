@@ -34,9 +34,9 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateOrderScreen(navController: NavController, token: String, orderViewModel: OrderViewModel = viewModel()) {
+fun CreateOrderScreen(navController: NavController, orderViewModel: OrderViewModel = viewModel()) {
 
-    LaunchedEffect(token) { if (token.isNotBlank()) orderViewModel.loadClients(token) }
+    LaunchedEffect(Unit) { orderViewModel.loadClients() }
 
     val clients by orderViewModel.clients.collectAsState()
     var selectedClient by remember { mutableStateOf<Cliente?>(null) }
@@ -65,7 +65,7 @@ fun CreateOrderScreen(navController: NavController, token: String, orderViewMode
                 Button(
                     onClick = {
                         val order = OrderRequest(clienteId = selectedClient!!.idCliente, fechaEntrega = deliveryDate, detalles = details)
-                        orderViewModel.createOrder(token, order) { success, message ->
+                        orderViewModel.createOrder(order) { success, message ->
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             if (success) navController.popBackStack()
                         }

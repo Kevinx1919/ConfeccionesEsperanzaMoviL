@@ -7,7 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +27,6 @@ import com.confecciones.esperanza.viewmodels.CreateMaterialUiState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateMaterialScreen(
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: CreateMaterialViewModel = viewModel()
 ) {
@@ -41,8 +40,8 @@ fun CreateMaterialScreen(
     val uiState by viewModel.uiState.collectAsState()
     val formError by viewModel.formError.collectAsState()
 
-    LaunchedEffect(token) {
-        viewModel.loadDropdowns(token)
+    LaunchedEffect(Unit) {
+        viewModel.loadDropdowns()
     }
 
     LaunchedEffect(uiState) {
@@ -57,7 +56,7 @@ fun CreateMaterialScreen(
                 title = { Text("Registrar Material", fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF7C3AED))
@@ -127,7 +126,7 @@ fun CreateMaterialScreen(
                         Text("Cancelar")
                     }
                     Button(
-                        onClick = { viewModel.createMaterial(token) },
+                        onClick = { viewModel.createMaterial() },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                         enabled = uiState !is CreateMaterialUiState.Loading
@@ -184,14 +183,14 @@ fun MaterialDropdown(
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
             value = selected?.descripcion ?: "",
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             items.forEach { item ->
@@ -219,14 +218,14 @@ fun ColorDropdown(
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
             value = selected?.nombre ?: "",
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             items.forEach { item ->

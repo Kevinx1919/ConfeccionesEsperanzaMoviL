@@ -1,6 +1,7 @@
 package com.confecciones.esperanza.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.confecciones.esperanza.network.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -23,6 +24,7 @@ class MainViewModel : ViewModel() {
         _token.value = token
         _userRole.value = role
         _isLoggedIn.value = true
+        RetrofitClient.authToken = token
     }
 
     fun logout() {
@@ -30,5 +32,6 @@ class MainViewModel : ViewModel() {
         _token.value = null
         _userRole.value = null
         _isLoggedIn.value = false
+        RetrofitClient.authToken = null
     }
 }

@@ -24,7 +24,6 @@ sealed class EditMaterialUiState {
 
 class EditMaterialViewModel : ViewModel() {
 
-    // Form state
     private val _nombre = MutableStateFlow("")
     val nombre: StateFlow<String> = _nombre.asStateFlow()
 
@@ -40,14 +39,12 @@ class EditMaterialViewModel : ViewModel() {
     private val _selectedColor = MutableStateFlow<Color?>(null)
     val selectedColor: StateFlow<Color?> = _selectedColor.asStateFlow()
 
-    // Dropdown lists
     private val _tiposMaterial = MutableStateFlow<List<TipoMaterial>>(emptyList())
     val tiposMaterial: StateFlow<List<TipoMaterial>> = _tiposMaterial.asStateFlow()
 
     private val _colores = MutableStateFlow<List<Color>>(emptyList())
     val colores: StateFlow<List<Color>> = _colores.asStateFlow()
 
-    // UI State
     private val _uiState = MutableStateFlow<EditMaterialUiState>(EditMaterialUiState.Idle)
     val uiState: StateFlow<EditMaterialUiState> = _uiState.asStateFlow()
 
@@ -89,20 +86,18 @@ class EditMaterialViewModel : ViewModel() {
         )
     }
 
-    fun loadMaterial(token: String, materialId: Int) {
+    fun loadMaterial(materialId: Int) {
         viewModelScope.launch {
             _uiState.value = EditMaterialUiState.Loading
             try {
-                // Fetch Material
-                val materialResponse = RetrofitClient.apiService.getMaterial("Bearer $token", materialId)
+                val materialResponse = RetrofitClient.apiService.getMaterial(materialId)
                 if (materialResponse.isSuccessful) {
                     val material = materialResponse.body()!!
                     _nombre.value = material.nombre
                     _cantidad.value = material.cantidad.toInt().toString()
                     _proveedor.value = material.proveedor
 
-                    // Fetch and set dropdowns
-                    loadDropdowns(token, material)
+                    loadDropdowns(material)
                 } else {
                     throw Exception("Error al cargar el material")
                 }
@@ -112,11 +107,10 @@ class EditMaterialViewModel : ViewModel() {
         }
     }
 
-    private fun loadDropdowns(token: String, material: Material) {
+    private fun loadDropdowns(material: Material) {
         viewModelScope.launch {
             try {
-                // Fetch Tipos de Material
-                val tiposResponse = RetrofitClient.apiService.getTiposMaterial("Bearer $token")
+                val tiposResponse = RetrofitClient.apiService.getTiposMaterial()
                 if (tiposResponse.isSuccessful) {
                     val tipos = tiposResponse.body() ?: emptyList()
                     _tiposMaterial.value = tipos
@@ -125,9 +119,8 @@ class EditMaterialViewModel : ViewModel() {
                     throw Exception("Error al cargar tipos de material")
                 }
 
-                // Fetch Colores
                 _colores.value = try {
-                    val coloresResponse = RetrofitClient.apiService.getColores("Bearer $token")
+                    val coloresResponse = RetrofitClient.apiService.getColores()
                     if (coloresResponse.isSuccessful && !coloresResponse.body().isNullOrEmpty()) {
                         val colores = coloresResponse.body()!!
                         _selectedColor.value = colores.find { it.id == material.colorId }
@@ -138,7 +131,7 @@ class EditMaterialViewModel : ViewModel() {
                 } catch (e: Exception) {
                     getDefaultColors()
                 }
-                
+
                 _uiState.value = EditMaterialUiState.Idle
             } catch (e: Exception) {
                 _uiState.value = EditMaterialUiState.Error(e.message ?: "Error desconocido")
@@ -146,7 +139,7 @@ class EditMaterialViewModel : ViewModel() {
         }
     }
 
-    fun updateMaterial(token: String, materialId: Int) {
+    fun updateMaterial(materialId: Int) {
         if (!validateForm()) return
 
         viewModelScope.launch {
@@ -164,14 +157,14 @@ class EditMaterialViewModel : ViewModel() {
                     colorId = _selectedColor.value!!.id
                 )
 
-                val response = RetrofitClient.apiService.updateMaterial("Bearer $token", materialId, request)
+                val response = RetrofitClient.apiService.updateMaterial(materialId, request)
                 if (response.isSuccessful) {
                     _uiState.value = EditMaterialUiState.Success
                 } else {
                     _uiState.value = EditMaterialUiState.Error("Error al actualizar el material: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _uiState.value = EditMaterialUiState.Error("Error de conexión: ${e.message}")
+                _uiState.value = EditMaterialUiState.Error("Error de conexion: ${e.message}")
             }
         }
     }
@@ -188,7 +181,7 @@ class EditMaterialViewModel : ViewModel() {
                 false
             }
             cantidadInt == null || cantidadInt <= 0 -> {
-                _formError.value = "La cantidad debe ser un número mayor que cero"
+                _formError.value = "La cantidad debe ser un numero mayor que cero"
                 false
             }
             _selectedTipoMaterial.value == null -> {
