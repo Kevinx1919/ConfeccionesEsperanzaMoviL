@@ -36,25 +36,25 @@ class EmployeeViewModel : ViewModel() {
         } else {
             _employees.value.filter {
                 it.userName.lowercase().contains(query) ||
-                it.email.lowercase().contains(query) ||
-                it.phoneNumber?.contains(query) ?: false
+                    it.email.lowercase().contains(query) ||
+                    it.phoneNumber?.contains(query) ?: false
             }
         }
     }
 
-    fun getEmployees(token: String) {
+    fun getEmployees() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = RetrofitClient.apiService.getUsers("Bearer $token")
+                val response = RetrofitClient.apiService.getUsers()
                 if (response.isSuccessful) {
                     _employees.value = response.body()?.employees ?: emptyList()
-                    filterEmployees() // Initial filter
+                    filterEmployees()
                 } else {
                     _error.value = "Error al obtener los empleados"
                 }
             } catch (e: Exception) {
-                _error.value = "Error de conexión: ${e.message}"
+                _error.value = "Error de conexion: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

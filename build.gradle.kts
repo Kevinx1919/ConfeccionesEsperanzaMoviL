@@ -9,8 +9,8 @@ sonarqube {
     properties {
         property("sonar.projectKey", "Confecciones-Esperanza-Movil")
         property("sonar.projectName", "Confecciones Esperanza MOVIL")
-        property("sonar.host.url", "http://localhost:9000")
-        property("sonar.login", "sqp_0c1558a2255a2acddeaf877feaab3dd1c236c2c1")
+        System.getenv("SONAR_HOST_URL")?.let { property("sonar.host.url", it) }
+        System.getenv("SONAR_TOKEN")?.let { property("sonar.token", it) }
         property("sonar.android.lint.report.path", "build/reports/lint-results-debug.xml")
     }
 }

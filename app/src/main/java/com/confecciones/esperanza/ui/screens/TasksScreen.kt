@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,12 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.confecciones.esperanza.models.Tarea
+import com.confecciones.esperanza.ui.theme.*
 import com.confecciones.esperanza.viewmodels.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
-    token: String,
     onNavigateToDetail: (Int) -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToCreate: () -> Unit,
@@ -34,28 +34,25 @@ fun TasksScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(token) {
-        viewModel.getTareas(token)
+    LaunchedEffect(Unit) {
+        viewModel.getTareas()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tareas", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text("Tareas", fontWeight = FontWeight.SemiBold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null, tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF7C3AED))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = PurplePrimary)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToCreate,
-                containerColor = Color(0xFF7C3AED)
-            ) {
-                Icon(Icons.Default.Add, "Agregar Tarea", tint = Color.White)
+            FloatingActionButton(onClick = onNavigateToCreate) {
+                Icon(Icons.Outlined.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->
@@ -63,36 +60,37 @@ fun TasksScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF8F8F8))
+                .background(AppBackground)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF7C3AED))
-            } else if (error != null) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("⚠️", fontSize = 64.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(error!!, color = Color.Red, fontSize = 16.sp)
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = PurplePrimary)
                 }
-            } else if (tareas.isEmpty()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("📋", fontSize = 64.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("No hay tareas registradas", color = Color.Gray, fontSize = 16.sp)
+                error != null -> {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Ocurrio un error", fontSize = 16.sp, color = AppError)
+                    }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(tareas) { tarea ->
-                        TaskCard(tarea = tarea, onClick = { onNavigateToDetail(tarea.idTarea) })
+                tareas.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("No hay tareas registradas", color = AppTextSecondary, fontSize = 16.sp)
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(AppSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+                    ) {
+                        items(tareas) { tarea ->
+                            TaskCard(tarea = tarea, onClick = { onNavigateToDetail(tarea.idTarea) })
+                        }
                     }
                 }
             }
@@ -109,46 +107,45 @@ fun TaskCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.sm),
+        shape = RoundedCornerShape(AppRadius.lg)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(AppSpacing.md)) {
             Text(
                 text = tarea.nombreTarea,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1F2937)
+                fontWeight = FontWeight.SemiBold,
+                color = AppTextPrimary
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
             Text(
                 text = tarea.descripcion,
                 fontSize = 14.sp,
-                color = Color.Gray,
+                color = AppTextSecondary,
                 maxLines = 2
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Activas", fontSize = 12.sp, color = Color.Gray)
+                    Text("Activas", fontSize = 12.sp, color = AppTextMuted)
                     Text(
                         text = tarea.asignacionesActivas.toString(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFF59E0B)
+                        color = AppWarning
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Completadas", fontSize = 12.sp, color = Color.Gray)
+                    Text("Completadas", fontSize = 12.sp, color = AppTextMuted)
                     Text(
                         text = tarea.asignacionesCompletadas.toString(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF10B981)
+                        color = AppSuccess
                     )
                 }
             }

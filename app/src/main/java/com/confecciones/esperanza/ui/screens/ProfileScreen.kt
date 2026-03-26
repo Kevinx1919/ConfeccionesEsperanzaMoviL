@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,13 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.confecciones.esperanza.models.ProfileData
-import com.confecciones.esperanza.viewmodels.ProfileViewModel
+import com.confecciones.esperanza.ui.theme.*
 import com.confecciones.esperanza.viewmodels.ProfileUiState
+import com.confecciones.esperanza.viewmodels.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
@@ -40,12 +40,10 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val profileData by viewModel.profileData.collectAsState()
 
-    // Cargar perfil al iniciar
     LaunchedEffect(Unit) {
-        viewModel.fetchProfile(token)
+        viewModel.fetchProfile()
     }
 
-    // Actualizar campos de edición cuando cambie profileData
     LaunchedEffect(profileData) {
         profileData?.let {
             editUserName = it.userName ?: ""
@@ -54,7 +52,6 @@ fun ProfileScreen(
         }
     }
 
-    // Manejar éxito de actualización
     LaunchedEffect(uiState) {
         if (uiState is ProfileUiState.UpdateSuccess) {
             isEditing = false
@@ -66,25 +63,13 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Mi Perfil",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                },
+                title = { Text(text = "Mi perfil", fontWeight = FontWeight.SemiBold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.White
-                        )
+                        Icon(imageVector = Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null, tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF7C3AED)
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = PurplePrimary)
             )
         }
     ) { paddingValues ->
@@ -92,45 +77,25 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF8F8F8))
+                .background(AppBackground)
         ) {
             when (val state = uiState) {
                 is ProfileUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = Color(0xFF7C3AED))
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text("Cargando perfil...", color = Color.Gray)
+                            CircularProgressIndicator(color = PurplePrimary)
+                            Spacer(modifier = Modifier.height(AppSpacing.sm))
+                            Text("Cargando perfil...", color = AppTextSecondary)
                         }
                     }
                 }
 
                 is ProfileUiState.Error -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(32.dp)
-                        ) {
-                            Text(text = "⚠️", fontSize = 64.sp)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = state.message,
-                                color = Color(0xFFDC2626),
-                                fontSize = 16.sp
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = { viewModel.fetchProfile(token) },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF7C3AED)
-                                )
-                            ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(AppSpacing.lg)) {
+                            Text(text = state.message, color = AppError, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.height(AppSpacing.sm))
+                            Button(onClick = { viewModel.fetchProfile() }) {
                                 Text("Reintentar")
                             }
                         }
@@ -157,7 +122,6 @@ fun ProfileScreen(
                             },
                             onSaveEdit = {
                                 viewModel.updateProfile(
-                                    token,
                                     editUserName,
                                     editEmail,
                                     editPhoneNumber.ifBlank { null }
@@ -169,9 +133,7 @@ fun ProfileScreen(
                     }
                 }
 
-                else -> {
-                    // Estado Idle - no mostrar nada o mostrar placeholder
-                }
+                else -> Unit
             }
         }
     }
@@ -198,92 +160,60 @@ fun ProfileContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // Header con avatar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF7C3AED),
-                            Color(0xFFEC4899)
-                        )
-                    )
-                ),
+                .height(190.dp)
+                .background(AppGradients.primary),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = profile.userName?.firstOrNull()?.uppercase() ?: "U",
-                        fontSize = 48.sp,
+                        fontSize = 42.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF7C3AED)
+                        color = PurplePrimary
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Mi Perfil",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = "Administra tu información personal",
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.9f)
-                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Text(text = "Mi perfil", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Gestion de informacion personal", fontSize = 14.sp, color = Color.White.copy(alpha = 0.9f))
             }
         }
 
-        // Mensaje de éxito
         if (showSuccessMessage) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFDCFCE7)
-                ),
-                shape = RoundedCornerShape(12.dp)
+                    .padding(AppSpacing.md),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFDCFCE7)),
+                shape = RoundedCornerShape(AppRadius.md)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "✅", fontSize = 24.sp)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = successMessage,
-                        color = Color(0xFF15803D),
-                        fontSize = 14.sp
-                    )
+                Row(modifier = Modifier.padding(AppSpacing.md), verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = successMessage, color = Color(0xFF15803D), fontSize = 14.sp)
                 }
             }
         }
 
-        // Contenido principal
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            shape = RoundedCornerShape(16.dp)
+                .padding(AppSpacing.md),
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.sm),
+            shape = RoundedCornerShape(AppRadius.lg)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(AppSpacing.lg)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -291,30 +221,26 @@ fun ProfileContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Información Personal",
-                        fontSize = 20.sp,
+                        text = "Informacion personal",
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1F2937)
+                        color = AppTextPrimary
                     )
 
                     if (!isEditing) {
                         Button(
                             onClick = onStartEdit,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF7C3AED)
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            shape = RoundedCornerShape(AppRadius.sm),
+                            contentPadding = PaddingValues(horizontal = AppSpacing.md, vertical = AppSpacing.xs)
                         ) {
-                            Text("Editar Perfil", fontSize = 13.sp)
+                            Text("Editar perfil", fontSize = 13.sp)
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 if (isEditing) {
-                    // Formulario de edición
                     EditProfileForm(
                         userName = editUserName,
                         email = editEmail,
@@ -326,7 +252,6 @@ fun ProfileContent(
                         onCancel = onCancelEdit
                     )
                 } else {
-                    // Vista de información
                     ProfileInfoView(profile)
                 }
             }
@@ -349,69 +274,52 @@ fun EditProfileForm(
         OutlinedTextField(
             value = userName,
             onValueChange = onUserNameChange,
-            label = { Text("Nombre de Usuario") },
+            label = { Text("Nombre de usuario") },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF7C3AED),
-                focusedLabelColor = Color(0xFF7C3AED)
-            )
+            shape = RoundedCornerShape(AppRadius.md)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.md))
 
         OutlinedTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = { Text("Email") },
+            label = { Text("Correo") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF7C3AED),
-                focusedLabelColor = Color(0xFF7C3AED)
-            )
+            shape = RoundedCornerShape(AppRadius.md)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.md))
 
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = onPhoneNumberChange,
-            label = { Text("Teléfono (Opcional)") },
+            label = { Text("Telefono (opcional)") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF7C3AED),
-                focusedLabelColor = Color(0xFF7C3AED)
-            )
+            shape = RoundedCornerShape(AppRadius.md)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)
         ) {
             Button(
                 onClick = onSave,
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF10B981)
-                ),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(AppRadius.md),
+                colors = ButtonDefaults.buttonColors(containerColor = AppSuccess)
             ) {
-                Text("Guardar Cambios")
+                Text("Guardar")
             }
 
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF6B7280)
-                )
+                shape = RoundedCornerShape(AppRadius.md)
             ) {
                 Text("Cancelar")
             }
@@ -421,81 +329,53 @@ fun EditProfileForm(
 
 @Composable
 fun ProfileInfoView(profile: ProfileData) {
-    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        ProfileInfoItem(
-            label = "ID DE USUARIO",
-            value = profile.id ?: "N/A"
-        )
-
-        ProfileInfoItem(
-            label = "NOMBRE DE USUARIO",
-            value = profile.userName ?: "N/A"
-        )
-
+    Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.md)) {
+        ProfileInfoItem(label = "ID de usuario", value = profile.id ?: "N/A")
+        ProfileInfoItem(label = "Nombre de usuario", value = profile.userName ?: "N/A")
         ProfileInfoItemWithBadge(
-            label = "EMAIL",
+            label = "Correo",
             value = profile.email ?: "N/A",
-            badgeText = if (profile.emailConfirmed) "✓ CONFIRMADO" else "⚠ SIN CONFIRMAR",
-            badgeColor = if (profile.emailConfirmed) Color(0xFF10B981) else Color(0xFFF59E0B)
+            badgeText = if (profile.emailConfirmed) "Confirmado" else "Sin confirmar",
+            badgeColor = if (profile.emailConfirmed) AppSuccess else AppWarning
         )
-
         ProfileInfoItemWithBadge(
-            label = "TELÉFONO",
+            label = "Telefono",
             value = profile.phoneNumber ?: "No especificado",
-            badgeText = if (profile.phoneNumberConfirmed) "✓ CONFIRMADO" else "⚠ SIN CONFIRMAR",
-            badgeColor = if (profile.phoneNumberConfirmed) Color(0xFF10B981) else Color(0xFFF59E0B)
+            badgeText = if (profile.phoneNumberConfirmed) "Confirmado" else "Sin confirmar",
+            badgeColor = if (profile.phoneNumberConfirmed) AppSuccess else AppWarning
         )
-
         ProfileInfoItemWithBadge(
-            label = "AUTENTICACIÓN 2FA",
+            label = "Autenticacion 2FA",
             value = if (profile.twoFactorEnabled) "Habilitada" else "Deshabilitada",
-            badgeText = if (profile.twoFactorEnabled) "✓ ACTIVO" else "INACTIVO",
-            badgeColor = if (profile.twoFactorEnabled) Color(0xFF10B981) else Color(0xFF6B7280)
+            badgeText = if (profile.twoFactorEnabled) "Activo" else "Inactivo",
+            badgeColor = if (profile.twoFactorEnabled) AppSuccess else AppTextMuted
         )
-
         ProfileInfoItemWithBadge(
-            label = "ESTADO DE LA CUENTA",
+            label = "Estado de la cuenta",
             value = if (profile.lockoutEnabled && profile.lockoutEnd != null) "Bloqueada" else "Normal",
-            badgeText = if (profile.lockoutEnabled && profile.lockoutEnd != null) "🔒 BLOQUEADA" else "✓ ACTIVA",
-            badgeColor = if (profile.lockoutEnabled && profile.lockoutEnd != null) Color(0xFFDC2626) else Color(0xFF10B981)
+            badgeText = if (profile.lockoutEnabled && profile.lockoutEnd != null) "Bloqueada" else "Activa",
+            badgeColor = if (profile.lockoutEnabled && profile.lockoutEnd != null) AppError else AppSuccess
         )
+        ProfileInfoItem(label = "Intentos fallidos", value = profile.accessFailedCount.toString())
 
-        ProfileInfoItem(
-            label = "INTENTOS FALLIDOS",
-            value = profile.accessFailedCount.toString()
-        )
-
-        // Roles
         Column {
-            Text(
-                text = "ROLES",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF6B7280)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Roles", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppTextMuted)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
             if (profile.roles.isNullOrEmpty()) {
-                Text(
-                    text = "Sin roles asignados",
-                    fontSize = 16.sp,
-                    color = Color(0xFF1F2937)
-                )
+                Text(text = "Sin roles asignados", fontSize = 16.sp, color = AppTextPrimary)
             } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), modifier = Modifier.fillMaxWidth()) {
                     profile.roles.forEach { role ->
                         Surface(
-                            color = Color(0xFF7C3AED).copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = PurplePrimary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(AppRadius.sm)
                         ) {
                             Text(
                                 text = role,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF7C3AED)
+                                color = PurplePrimary
                             )
                         }
                     }
@@ -508,18 +388,9 @@ fun ProfileInfoView(profile: ProfileData) {
 @Composable
 fun ProfileInfoItem(label: String, value: String) {
     Column {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF6B7280)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            color = Color(0xFF1F2937)
-        )
+        Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppTextMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(text = value, fontSize = 16.sp, color = AppTextPrimary)
     }
 }
 
@@ -531,26 +402,14 @@ fun ProfileInfoItemWithBadge(
     badgeColor: Color
 ) {
     Column {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF6B7280)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            color = Color(0xFF1F2937)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Surface(
-            color = badgeColor.copy(alpha = 0.1f),
-            shape = RoundedCornerShape(6.dp)
-        ) {
+        Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppTextMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(text = value, fontSize = 16.sp, color = AppTextPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Surface(color = badgeColor.copy(alpha = 0.1f), shape = RoundedCornerShape(AppRadius.sm)) {
             Text(
                 text = badgeText,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = badgeColor

@@ -27,7 +27,6 @@ import com.confecciones.esperanza.viewmodels.CustomerUiState
 @Composable
 fun ClienteDetailScreen(
     clienteId: Int,
-    token: String,
     onNavigateBack: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
     onNavigateToDelete: (Int) -> Unit,
@@ -36,7 +35,7 @@ fun ClienteDetailScreen(
     val clienteState by viewModel.clienteState.collectAsState()
 
     LaunchedEffect(clienteId) {
-        viewModel.loadCliente(token, clienteId)
+        viewModel.loadCliente(clienteId)
     }
 
     Scaffold(
@@ -73,7 +72,7 @@ fun ClienteDetailScreen(
                             Text(state.message, color = Color(0xFFDC2626), fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
-                                onClick = { viewModel.loadCliente(token, clienteId) },
+                                onClick = { viewModel.loadCliente(clienteId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED))
                             ) {
                                 Text("Reintentar")

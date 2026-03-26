@@ -34,12 +34,12 @@ class CustomerViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
-    fun loadClientes(token: String) {
+    fun loadClientes() {
         viewModelScope.launch {
             _clientesState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.getClientes("Bearer $token")
+                val response = RetrofitClient.apiService.getClientes()
 
                 if (response.isSuccessful && response.body() != null) {
                     val clientesList = response.body()!!.clientes
@@ -54,12 +54,12 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun loadCliente(token: String, id: Int) {
+    fun loadCliente(id: Int) {
         viewModelScope.launch {
             _clienteState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.getCliente("Bearer $token", id)
+                val response = RetrofitClient.apiService.getCliente(id)
 
                 if (response.isSuccessful && response.body() != null) {
                     _clienteState.value = CustomerUiState.Success(response.body()!!)
@@ -72,12 +72,12 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun searchClienteByEmail(token: String, email: String) {
+    fun searchClienteByEmail(email: String) {
         viewModelScope.launch {
             _clienteState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.getClienteByEmail("Bearer $token", email)
+                val response = RetrofitClient.apiService.getClienteByEmail(email)
 
                 if (response.isSuccessful && response.body() != null) {
                     _clienteState.value = CustomerUiState.Success(response.body()!!)
@@ -90,12 +90,12 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun searchClienteByDocument(token: String, documento: String) {
+    fun searchClienteByDocument(documento: String) {
         viewModelScope.launch {
             _clienteState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.getClienteByDocument("Bearer $token", documento)
+                val response = RetrofitClient.apiService.getClienteByDocument(documento)
 
                 if (response.isSuccessful && response.body() != null) {
                     _clienteState.value = CustomerUiState.Success(response.body()!!)
@@ -108,18 +108,18 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun createCliente(token: String, request: ClienteRequest) {
+    fun createCliente(request: ClienteRequest) {
         viewModelScope.launch {
             _operationState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.createCliente("Bearer $token", request)
+                val response = RetrofitClient.apiService.createCliente(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val result = response.body()!!
                     if (result.isSuccess) {
                         _operationState.value = CustomerUiState.OperationSuccess(result.message)
-                        loadClientes(token) // Recargar lista
+                        loadClientes()
                     } else {
                         _operationState.value = CustomerUiState.Error(result.message)
                     }
@@ -132,18 +132,18 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun updateCliente(token: String, id: Int, request: ClienteRequest) {
+    fun updateCliente(id: Int, request: ClienteRequest) {
         viewModelScope.launch {
             _operationState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.updateCliente("Bearer $token", id, request)
+                val response = RetrofitClient.apiService.updateCliente(id, request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val result = response.body()!!
                     if (result.isSuccess) {
                         _operationState.value = CustomerUiState.OperationSuccess(result.message)
-                        loadClientes(token) // Recargar lista
+                        loadClientes()
                     } else {
                         _operationState.value = CustomerUiState.Error(result.message)
                     }
@@ -156,18 +156,18 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun deleteCliente(token: String, id: Int) {
+    fun deleteCliente(id: Int) {
         viewModelScope.launch {
             _operationState.value = CustomerUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.deleteCliente("Bearer $token", id)
+                val response = RetrofitClient.apiService.deleteCliente(id)
 
                 if (response.isSuccessful && response.body() != null) {
                     val result = response.body()!!
                     if (result.isSuccess) {
                         _operationState.value = CustomerUiState.OperationSuccess(result.message)
-                        loadClientes(token) // Recargar lista
+                        loadClientes()
                     } else {
                         _operationState.value = CustomerUiState.Error(result.message)
                     }
@@ -191,9 +191,9 @@ class CustomerViewModel : ViewModel() {
         } else {
             _clientes.value.filter {
                 it.nombreCompleto.lowercase().contains(query) ||
-                        it.emailCliente.lowercase().contains(query) ||
-                        it.numeroDocCliente.contains(query) ||
-                        it.telefonoCliente.contains(query)
+                    it.emailCliente.lowercase().contains(query) ||
+                    it.numeroDocCliente.contains(query) ||
+                    it.telefonoCliente.contains(query)
             }
         }
     }

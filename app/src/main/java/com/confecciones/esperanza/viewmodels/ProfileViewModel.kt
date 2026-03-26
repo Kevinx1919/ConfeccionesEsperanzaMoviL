@@ -25,12 +25,12 @@ class ProfileViewModel : ViewModel() {
     private val _profileData = MutableStateFlow<ProfileData?>(null)
     val profileData: StateFlow<ProfileData?> = _profileData
 
-    fun fetchProfile(token: String) {
+    fun fetchProfile() {
         viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
 
             try {
-                val response = RetrofitClient.apiService.getProfile("Bearer $token")
+                val response = RetrofitClient.apiService.getProfile()
 
                 if (response.isSuccessful && response.body() != null) {
                     val profile = response.body()!!
@@ -40,18 +40,18 @@ class ProfileViewModel : ViewModel() {
                     _uiState.value = ProfileUiState.Error("Error al cargar el perfil: ${response.code()}")
                 }
             } catch (e: Exception) {
-                _uiState.value = ProfileUiState.Error("Error de conexión: ${e.message ?: "Desconocido"}")
+                _uiState.value = ProfileUiState.Error("Error de conexion: ${e.message ?: "Desconocido"}")
             }
         }
     }
 
-    fun updateProfile(token: String, userName: String, email: String, phoneNumber: String?) {
+    fun updateProfile(userName: String, email: String, phoneNumber: String?) {
         viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
 
             try {
                 val request = ProfileUpdateRequest(userName, email, phoneNumber)
-                val response = RetrofitClient.apiService.updateProfile("Bearer $token", request)
+                val response = RetrofitClient.apiService.updateProfile(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val result = response.body()!!
@@ -65,7 +65,7 @@ class ProfileViewModel : ViewModel() {
                     _uiState.value = ProfileUiState.Error("Error al actualizar: ${response.code()}")
                 }
             } catch (e: Exception) {
-                _uiState.value = ProfileUiState.Error("Error de conexión: ${e.message ?: "Desconocido"}")
+                _uiState.value = ProfileUiState.Error("Error de conexion: ${e.message ?: "Desconocido"}")
             }
         }
     }

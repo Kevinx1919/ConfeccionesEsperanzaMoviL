@@ -19,18 +19,18 @@ class TaskViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun getTareas(token: String) {
+    fun getTareas() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = RetrofitClient.apiService.getTareas("Bearer $token")
+                val response = RetrofitClient.apiService.getTareas()
                 if (response.isSuccessful) {
                     _tareas.value = response.body()?.tareas ?: emptyList()
                 } else {
                     _error.value = "Error al obtener las tareas"
                 }
             } catch (e: Exception) {
-                _error.value = "Error de conexión: ${e.message}"
+                _error.value = "Error de conexion: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

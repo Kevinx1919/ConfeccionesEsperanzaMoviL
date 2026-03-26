@@ -26,7 +26,6 @@ import com.confecciones.esperanza.viewmodels.MaterialDetailUiState
 @Composable
 fun MaterialDetailScreen(
     materialId: Int,
-    token: String,
     onNavigateBack: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
     onNavigateToDelete: (Int) -> Unit
@@ -35,7 +34,7 @@ fun MaterialDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(materialId) {
-        viewModel.getMaterial(token, materialId)
+        viewModel.getMaterial(materialId)
     }
 
     LaunchedEffect(uiState) {

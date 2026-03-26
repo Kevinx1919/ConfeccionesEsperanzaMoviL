@@ -22,14 +22,13 @@ import com.confecciones.esperanza.viewmodels.DeleteMaterialUiState
 @Composable
 fun DeleteMaterialScreen(
     materialId: Int,
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: DeleteMaterialViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(materialId) {
-        viewModel.getMaterial(token, materialId)
+        viewModel.getMaterial(materialId)
     }
 
     LaunchedEffect(uiState) {
@@ -101,7 +100,7 @@ fun DeleteMaterialScreen(
                                     Text("NO, CANCELAR")
                                 }
                                 Button(
-                                    onClick = { viewModel.deleteMaterial(token, materialId) },
+                                    onClick = { viewModel.deleteMaterial(materialId) },
                                     modifier = Modifier.weight(1f),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                                 ) {

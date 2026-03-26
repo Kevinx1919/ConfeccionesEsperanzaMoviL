@@ -28,7 +28,6 @@ import com.confecciones.esperanza.viewmodels.EditMaterialUiState
 @Composable
 fun EditMaterialScreen(
     materialId: Int,
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: EditMaterialViewModel = viewModel()
 ) {
@@ -43,7 +42,7 @@ fun EditMaterialScreen(
     val formError by viewModel.formError.collectAsState()
 
     LaunchedEffect(materialId) {
-        viewModel.loadMaterial(token, materialId)
+        viewModel.loadMaterial(materialId)
     }
 
     LaunchedEffect(uiState) {
@@ -128,7 +127,7 @@ fun EditMaterialScreen(
                         Text("Cancelar")
                     }
                     Button(
-                        onClick = { viewModel.updateMaterial(token, materialId) },
+                        onClick = { viewModel.updateMaterial(materialId) },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                         enabled = uiState !is EditMaterialUiState.Loading

@@ -23,7 +23,6 @@ import com.confecciones.esperanza.viewmodels.CustomerUiState
 @Composable
 fun DeleteClienteScreen(
     clienteId: Int,
-    token: String,
     onNavigateBack: () -> Unit,
     viewModel: CustomerViewModel = viewModel()
 ) {
@@ -33,7 +32,7 @@ fun DeleteClienteScreen(
 
     // Cargar datos del cliente
     LaunchedEffect(clienteId) {
-        viewModel.loadCliente(token, clienteId)
+        viewModel.loadCliente(clienteId)
     }
 
     // Manejar éxito de eliminación
@@ -79,7 +78,7 @@ fun DeleteClienteScreen(
                             Text(state.message, color = Color(0xFFDC2626), fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
-                                onClick = { viewModel.loadCliente(token, clienteId) },
+                                onClick = { viewModel.loadCliente(clienteId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED))
                             ) {
                                 Text("Reintentar")
@@ -103,7 +102,7 @@ fun DeleteClienteScreen(
                             cliente = cliente,
                             onConfirm = {
                                 showConfirmDialog = false
-                                viewModel.deleteCliente(token, clienteId)
+                                viewModel.deleteCliente(clienteId)
                             },
                             onDismiss = { showConfirmDialog = false }
                         )

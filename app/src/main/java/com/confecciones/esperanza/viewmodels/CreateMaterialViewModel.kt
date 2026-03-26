@@ -23,7 +23,6 @@ sealed class CreateMaterialUiState {
 
 class CreateMaterialViewModel : ViewModel() {
 
-    // Form state
     private val _nombre = MutableStateFlow("")
     val nombre: StateFlow<String> = _nombre.asStateFlow()
 
@@ -39,14 +38,12 @@ class CreateMaterialViewModel : ViewModel() {
     private val _selectedColor = MutableStateFlow<Color?>(null)
     val selectedColor: StateFlow<Color?> = _selectedColor.asStateFlow()
 
-    // Dropdown lists
     private val _tiposMaterial = MutableStateFlow<List<TipoMaterial>>(emptyList())
     val tiposMaterial: StateFlow<List<TipoMaterial>> = _tiposMaterial.asStateFlow()
 
     private val _colores = MutableStateFlow<List<Color>>(emptyList())
     val colores: StateFlow<List<Color>> = _colores.asStateFlow()
 
-    // UI State
     private val _uiState = MutableStateFlow<CreateMaterialUiState>(CreateMaterialUiState.Idle)
     val uiState: StateFlow<CreateMaterialUiState> = _uiState.asStateFlow()
 
@@ -88,21 +85,19 @@ class CreateMaterialViewModel : ViewModel() {
         )
     }
 
-    fun loadDropdowns(token: String) {
+    fun loadDropdowns() {
         viewModelScope.launch {
             _uiState.value = CreateMaterialUiState.Loading
             try {
-                // Fetch Tipos de Material
-                val tiposResponse = RetrofitClient.apiService.getTiposMaterial("Bearer $token")
+                val tiposResponse = RetrofitClient.apiService.getTiposMaterial()
                 if (tiposResponse.isSuccessful) {
                     _tiposMaterial.value = tiposResponse.body() ?: emptyList()
                 } else {
                     throw Exception("Error al cargar tipos de material")
                 }
 
-                // Fetch Colores
                 _colores.value = try {
-                    val coloresResponse = RetrofitClient.apiService.getColores("Bearer $token")
+                    val coloresResponse = RetrofitClient.apiService.getColores()
                     if (coloresResponse.isSuccessful && !coloresResponse.body().isNullOrEmpty()) {
                         coloresResponse.body()!!
                     } else {
@@ -112,14 +107,14 @@ class CreateMaterialViewModel : ViewModel() {
                     getDefaultColors()
                 }
 
-                _uiState.value = CreateMaterialUiState.Idle // Back to idle after loading dropdowns
+                _uiState.value = CreateMaterialUiState.Idle
             } catch (e: Exception) {
                 _uiState.value = CreateMaterialUiState.Error(e.message ?: "Error desconocido")
             }
         }
     }
 
-    fun createMaterial(token: String) {
+    fun createMaterial() {
         if (!validateForm()) return
 
         viewModelScope.launch {
@@ -137,14 +132,14 @@ class CreateMaterialViewModel : ViewModel() {
                     colorId = _selectedColor.value!!.id
                 )
 
-                val response = RetrofitClient.apiService.createMaterial("Bearer $token", request)
+                val response = RetrofitClient.apiService.createMaterial(request)
                 if (response.isSuccessful) {
                     _uiState.value = CreateMaterialUiState.Success
                 } else {
                     _uiState.value = CreateMaterialUiState.Error("Error al crear el material: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _uiState.value = CreateMaterialUiState.Error("Error de conexión: ${e.message}")
+                _uiState.value = CreateMaterialUiState.Error("Error de conexion: ${e.message}")
             }
         }
     }
@@ -161,7 +156,7 @@ class CreateMaterialViewModel : ViewModel() {
                 false
             }
             cantidadInt == null || cantidadInt <= 0 -> {
-                _formError.value = "La cantidad debe ser un número mayor que cero"
+                _formError.value = "La cantidad debe ser un numero mayor que cero"
                 false
             }
             _selectedTipoMaterial.value == null -> {
